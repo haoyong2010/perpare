@@ -14,13 +14,8 @@ func main() {
 		nextTime time.Time
 	)
 	//哪一分钟（0-59），哪一小时（0-23），哪天（1-31），哪月（1-12），星期几（0-6）
-	//每分钟执行1次
-	//if expr, err = cronexpr.Parse("* * * * *"); err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
 	//每5分钟执行1次
-	if expr, err = cronexpr.Parse("*/6 * * * *"); err != nil {
+	if expr, err = cronexpr.Parse("*/5 * * * * * *"); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -29,7 +24,14 @@ func main() {
 	now = time.Now()
 	//下次调度时间
 	nextTime = expr.Next(now)
-	expr = expr
+	//等待定时器超时
+	//time.NewTimer(nextTime.Sub(now))
+	go func() {
+		time.AfterFunc(nextTime.Sub(now), func() {
+			fmt.Println("被调度了：", nextTime)
+		})
+	}()
 
-	fmt.Printf("now:%v nextTime:%v", now, nextTime)
+	time.Sleep(15 * time.Second)
+	//fmt.Printf("now:%v nextTime:%v", now, nextTime)
 }
